@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-def calcular_descanso():
+def calcular_descanso_diario():
 
     descanso_reducido = 9
     descanso_normal = 11
@@ -44,6 +44,31 @@ def calcular_descanso():
             f"{limite_jornada.strftime('%d/%m/%Y %H:%M')}"
         )
 
+def pedir_datos_semanal():
+    fecha_manual = input("Introduce la fecha fin del descanso anterior (DD/MM/AAAA): ")
+    hora_manual = input("Introduce la hora fin del descanso anterior(HH:MM): ")
+
+    fecha_convertida = datetime.strptime(fecha_manual, "%d/%m/%Y")
+    hora_convertida = datetime.strptime(hora_manual, "%H:%M")
+
+    hora_inicio = datetime.combine(
+        fecha_convertida.date(),
+        hora_convertida.time()
+    )
+
+    return hora_inicio
+
+def calcular_limite_semanal(fin_descanso_anterior):
+     limite = fin_descanso_anterior + timedelta(hours=144)
+     return limite
+     
+calcular_descanso_diario()
+fin_anterior = pedir_datos_semanal()
+limite = calcular_limite_semanal(fin_anterior)
+print(
+    f"Fecha y hora límite para iniciar el siguiente descanso semanal: "
+    f"{limite.strftime('%d/%m/%Y %H:%M')}"
+)
 
 
-calcular_descanso()
+

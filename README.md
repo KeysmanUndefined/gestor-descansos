@@ -143,3 +143,85 @@ Aprendizaje: Ruff puede detectar variables declaradas pero no utilizadas, ademá
 ### Referencia normativa
 
 Reglamento (CE) 561/2006, artículos 4 y 8.
+
+## Actualización — 01/11/2026
+
+### Nueva funcionalidad: límite de inicio del descanso semanal
+
+Se incorpora el cálculo de la fecha y hora límite para comenzar el siguiente descanso semanal, conforme a la regla general del artículo 8.6 del Reglamento (CE) 561/2006.
+
+El programa permite:
+
+- Introducir manualmente la fecha y hora de finalización del descanso semanal anterior.
+- Calcular los seis períodos consecutivos de 24 horas (144 horas).
+- Mostrar la fecha y hora límite para comenzar el siguiente descanso semanal.
+
+### Ejemplo de funcionamiento
+
+```text
+Fin del descanso semanal anterior: 01/11/2026 18:33
+
+Fecha y hora límite para iniciar el siguiente descanso semanal: 07/11/2026 18:33
+```
+
+El cálculo indica cuándo debe comenzar, como máximo, el siguiente descanso semanal. No significa que el conductor pueda conducir durante 144 horas ni que deba esperar hasta ese límite para descansar.
+
+### Nuevas funciones
+
+**`pedir_datos_semanal()`**
+
+Solicita una fecha y una hora, las convierte en un objeto `datetime` y devuelve el resultado.
+
+**`calcular_limite_semanal(fin_descanso_anterior)`**
+
+Recibe la fecha y hora de finalización del descanso semanal anterior y calcula el límite de 144 horas.
+
+```python
+def calcular_limite_semanal(fin_descanso_anterior):
+    limite = fin_descanso_anterior + timedelta(hours=144)
+    return limite
+```
+
+### Conceptos de Python aprendidos
+
+**1. Separación de responsabilidades**
+
+En lugar de crear una única función que haga todo, se han separado la recogida de datos y el cálculo.
+
+Esto facilita la reutilización del código, las pruebas y el mantenimiento.
+
+**2. Parámetros y argumentos**
+
+Una función puede recibir información procedente de otra función.
+
+```python
+limite = calcular_limite_semanal(fin_anterior)
+```
+
+**3. Uso de `return`**
+
+Permite devolver un resultado para utilizarlo posteriormente, sin necesidad de mostrarlo directamente con `print()`.
+
+**4. Variables locales**
+
+Distintas funciones pueden utilizar variables con el mismo nombre sin interferir entre ellas.
+
+**5. Comunicación entre funciones**
+
+Se ha practicado cómo recoger el resultado de una función y pasarlo como argumento a otra.
+
+### Próximas mejoras
+
+- Calcular el final de los descansos semanales normales de 45 horas.
+- Incorporar los descansos semanales reducidos y sus compensaciones.
+- Comprobar el cumplimiento de las condiciones legales de los descansos semanales.
+- Controlar los descansos en dos semanas consecutivas.
+- Crear un menú principal para seleccionar el cálculo deseado.
+- Separar progresivamente la lógica de cálculo de la interfaz de usuario.
+- Incorporar pruebas automatizadas con `pytest`.
+
+### Limitaciones actuales
+
+El programa calcula el plazo general de 144 horas, pero todavía no comprueba el cumplimiento completo del Reglamento (CE) 561/2006, incluidas las excepciones aplicables, los descansos reducidos, las compensaciones y las reglas de dos semanas consecutivas.
+
+**Referencia normativa:** Reglamento (CE) 561/2006, artículo 8, en su versión vigente.
