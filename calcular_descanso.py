@@ -62,13 +62,167 @@ def calcular_limite_semanal(fin_descanso_anterior):
      limite = fin_descanso_anterior + timedelta(hours=144)
      return limite
      
-calcular_descanso_diario()
-fin_anterior = pedir_datos_semanal()
-limite = calcular_limite_semanal(fin_anterior)
-print(
-    f"Fecha y hora límite para iniciar el siguiente descanso semanal: "
-    f"{limite.strftime('%d/%m/%Y %H:%M')}"
-)
+#calcular_descanso_diario()
+#fin_anterior = pedir_datos_semanal()
+#limite = calcular_limite_semanal(fin_anterior)
+#print(
+    #f"Fecha y hora límite para iniciar el siguiente descanso semanal: "
+   # f"{limite.strftime('%d/%m/%Y %H:%M')}"
+#)
+
+
+def calcular_descanso_semanal_normal(inicio_descanso):
+    duracion = timedelta(hours=45)
+    fin_descanso = inicio_descanso + duracion
+
+    return fin_descanso
+
+def comprobar_descanso_semanal(inicio_descanso, limite):
+
+    if inicio_descanso <= limite:
+        print("Descanso semanal iniciado dentro del plazo")
+
+    else:
+        print("ATENCIÓN: has superado el límite de 144 horas")
 
 
 
+def comprobar_descanso_semanal(fin_anterior, inicio_nuevo):
+
+    limite = calcular_limite_semanal(fin_anterior)
+
+    if inicio_nuevo < fin_anterior:
+        return "ERROR: las fechas no son coherentes"
+
+    elif inicio_nuevo > limite:
+        return "FUERA DE PLAZO: superadas las 144 horas"
+
+    else:
+        return "CORRECTO: descanso iniciado dentro del plazo"
+
+    
+def calcular_descanso_semanal_reducido(inicio, horas, minutos=0):
+
+    duracion = timedelta(hours=horas, minutes=minutos)
+
+    if duracion < timedelta(hours=24) or duracion >= timedelta(hours=45):
+        raise ValueError(
+            "El descanso reducido debe ser de 24 a menos de 45 horas"
+        )
+
+    fin = inicio + duracion
+    compensacion = timedelta(hours=45) - duracion
+
+    return fin, compensacion
+
+
+def calcular_limite_compensacion(inicio_descanso):
+
+    inicio_semana = inicio_descanso.replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ) - timedelta(days=inicio_descanso.weekday())
+
+    limite = inicio_semana + timedelta(weeks=4)
+
+    return limite
+
+def comprobar_compensacion(
+    horas_pendientes,
+    inicio_compensacion,
+    fin_compensacion,
+    limite
+):
+    duracion = fin_compensacion - inicio_compensacion
+
+    if fin_compensacion <= inicio_compensacion:
+        return "ERROR: fechas incoherentes"
+
+    if fin_compensacion > limite:
+        return "FUERA DE PLAZO: compensación tardía"
+
+    if duracion < horas_pendientes + timedelta(hours=9):
+        return "INSUFICIENTE: faltan horas de descanso"
+
+    return "CORRECTO: compensación completada"
+
+
+
+
+
+
+
+
+
+def probar_descanso_semanal_normal():
+
+    fin_anterior = datetime(2026, 11, 5, 20, 0)
+    inicio_nuevo = datetime(2026, 11, 11, 18, 0)
+
+    limite = calcular_limite_semanal(fin_anterior)
+    fin = calcular_descanso_semanal_normal(inicio_nuevo)
+    resultado = comprobar_descanso_semanal(
+        fin_anterior, inicio_nuevo
+    )
+
+    print("\n--- DESCANSO SEMANAL NORMAL ---")
+    print("Límite:", limite)
+    print("Finalización:", fin)
+    print("Resultado:", resultado)
+
+
+def probar_descanso_semanal_reducido():
+
+    inicio = datetime(2026, 11, 7, 18, 15)
+
+    fin, compensacion = calcular_descanso_semanal_reducido(
+        inicio, 30, 25
+    )
+
+    limite = calcular_limite_compensacion(inicio)
+
+    print("\n--- DESCANSO SEMANAL REDUCIDO ---")
+    print("Inicio:", inicio)
+    print("Fin:", fin)
+    print("Compensación:", compensacion)
+    print("Límite compensación:", limite)
+
+
+
+def probar_descanso_semanal_reducido():
+
+    inicio = datetime(2026, 11, 7, 18, 15)
+
+    fin, compensacion = calcular_descanso_semanal_reducido(
+        inicio, 30, 25
+    )
+
+    limite = calcular_limite_compensacion(inicio)
+
+    print("\n--- DESCANSO SEMANAL REDUCIDO ---")
+    print("Inicio:", inicio)
+    print("Fin:", fin)
+    print("Compensación:", compensacion)
+    print("Límite compensación:", limite)
+
+    # PRUEBA DE COMPENSACIÓN
+
+    inicio_compensacion = datetime(2026, 11, 30, 8, 0)
+    fin_compensacion = datetime(2026, 12, 1, 8, 0)
+
+    resultado = comprobar_compensacion(
+        compensacion,
+        inicio_compensacion,
+        fin_compensacion,
+        limite
+    )
+
+    print("\n--- COMPROBACIÓN COMPENSACIÓN ---")
+    print("Inicio:", inicio_compensacion)
+    print("Fin:", fin_compensacion)
+    print("Duración:", fin_compensacion - inicio_compensacion)
+    print("Resultado:", resultado)
+
+
+if __name__ == "__main__":
+    probar_descanso_semanal_normal()
+    probar_descanso_semanal_reducido()
