@@ -125,6 +125,38 @@ def calcular_descanso_necesario(horas_pendientes):
 
     return horas_pendientes + descanso_minimo
 
+def comprobar_duracion_compensacion(
+    horas_pendientes,
+    inicio_descanso,
+    fin_descanso
+):
+    if fin_descanso <= inicio_descanso:
+        return "ERROR: fechas incoherentes"
+
+    duracion = fin_descanso - inicio_descanso
+    necesario = calcular_descanso_necesario(horas_pendientes)
+
+    if duracion < necesario:
+        return "INSUFICIENTE: faltan horas de descanso"
+
+    return "CORRECTO: duración suficiente"
+
+def probar_duracion_compensacion():
+
+    horas_pendientes = timedelta(hours=14, minutes=35)
+    inicio = datetime(2026, 11, 28, 8, 0)
+
+    fin = inicio + timedelta(hours=24)
+
+    resultado = comprobar_duracion_compensacion(
+        horas_pendientes,
+        inicio,
+        fin
+    )
+
+    print("\n--- PRUEBA DURACIÓN COMPENSACIÓN ---")
+    print("Resultado:", resultado)
+
 def probar_calcular_descanso_necesario():
 
     casos = [
@@ -148,18 +180,46 @@ def comprobar_compensacion(
     fin_compensacion,
     limite
 ):
-    duracion = fin_compensacion - inicio_compensacion
+    resultado = comprobar_duracion_compensacion(
+        horas_pendientes,
+        inicio_compensacion,
+        fin_compensacion
+    )
 
-    if fin_compensacion <= inicio_compensacion:
-        return "ERROR: fechas incoherentes"
+    if resultado != "CORRECTO: duración suficiente":
+        return resultado
 
     if fin_compensacion > limite:
         return "FUERA DE PLAZO: compensación tardía"
 
-    if duracion < calcular_descanso_necesario(horas_pendientes):
-        return "INSUFICIENTE: faltan horas de descanso"
+    return "CORRECTO: duración y plazo de compensación"
 
-    return "CORRECTO: compensación completada"
+def probar_compensacion_invalida():
+
+    pendiente = timedelta(hours=14, minutes=35)
+    inicio = datetime(2026, 11, 28, 8, 0)
+    limite = datetime(2026, 11, 30, 0, 0)
+
+    # Caso 1: descanso insuficiente (20 horas)
+    fin_insuficiente = inicio + timedelta(hours=20)
+
+    resultado = comprobar_compensacion(
+        pendiente, inicio, fin_insuficiente, limite
+    )
+
+    print("\n--- COMPENSACIÓN INSUFICIENTE ---")
+    print("Resultado:", resultado)
+
+    # Caso 2: compensación fuera de plazo
+    inicio_tardio = datetime(2026, 11, 30, 8, 0)
+    fin_tardio = inicio_tardio + timedelta(hours=24)
+
+    resultado = comprobar_compensacion(
+        pendiente, inicio_tardio, fin_tardio, limite
+    )
+
+    print("\n--- COMPENSACIÓN FUERA DE PLAZO ---")
+    print("Resultado:", resultado)
 
 def probar_descanso_semanal_normal():
 
@@ -235,3 +295,5 @@ if __name__ == "__main__":
     probar_descanso_semanal_normal()
     probar_descanso_semanal_reducido()
     probar_calcular_descanso_necesario()
+    probar_duracion_compensacion()
+    probar_compensacion_invalida()
