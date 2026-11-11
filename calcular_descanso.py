@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+﻿from datetime import datetime, timedelta
 
 from motor.descanso_diario import calcular_descanso_diario
 
@@ -19,6 +19,9 @@ from motor.compensaciones import (
     consultar_compensaciones,
     obtener_estado_compensacion,
 )
+
+from test.test_descansos import probar_descanso_semanal_normal
+
 
 def pedir_datos_semanal():
     fecha_manual = input("Introduce la fecha fin del descanso anterior (DD/MM/AAAA): ")
@@ -187,40 +190,6 @@ def probar_compensacion_invalida():
 
     print("\n--- COMPENSACIÓN FUERA DE PLAZO ---")
     print("Resultado:", resultado)
-
-def probar_descanso_semanal_normal():
-
-    fin_anterior = datetime(2026, 11, 5, 20, 0)
-    inicio_nuevo = datetime(2026, 11, 11, 18, 0)
-
-    limite = calcular_limite_semanal(fin_anterior)
-    fin = calcular_descanso_semanal_normal(inicio_nuevo)
-    resultado = comprobar_descanso_semanal(
-        fin_anterior, inicio_nuevo
-    )
-
-    print("\n--- DESCANSO SEMANAL NORMAL ---")
-    print("Límite:", limite)
-    print("Finalización:", fin)
-    print("Resultado:", resultado)
-
-
-def probar_descanso_semanal_reducido():
-
-    inicio = datetime(2026, 11, 7, 18, 15)
-
-    fin, compensacion = calcular_descanso_semanal_reducido(
-        inicio, 30, 25
-    )
-
-    limite = calcular_limite_compensacion(inicio)
-
-    print("\n--- DESCANSO SEMANAL REDUCIDO ---")
-    print("Inicio:", inicio)
-    print("Fin:", fin)
-    print("Compensación:", compensacion)
-    print("Límite compensación:", limite)
-
 
 
 def probar_descanso_semanal_reducido():
