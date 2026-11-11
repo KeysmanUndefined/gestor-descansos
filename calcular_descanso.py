@@ -140,6 +140,52 @@ def agregar_compensacion(lista_compensaciones, registro):
 
     return lista_compensaciones
 
+
+def consultar_compensaciones(lista_compensaciones, fecha_actual):
+
+    pendientes = []
+    vencidas = []
+    horas_totales = timedelta(0)
+
+    for registro in lista_compensaciones:
+
+        if registro["estado"] != "PENDIENTE":
+            continue
+
+        pendientes.append(registro)
+        horas_totales += registro["horas_pendientes"]
+
+        if fecha_actual >= registro["fecha_limite"]:
+            vencidas.append(registro)
+
+    proximo_vencimiento = min(
+        pendientes,
+        key=lambda registro: registro["fecha_limite"],
+        default=None
+    )
+
+    return {
+        "cantidad_pendientes": len(pendientes),
+        "horas_pendientes": horas_totales,
+        "cantidad_vencidas": len(vencidas),
+        "proximo_vencimiento": proximo_vencimiento
+    }
+
+def obtener_estado_compensacion(registro, fecha_actual):
+
+    if registro["estado"] == "COMPLETADA":
+        return "COMPLETADA"
+
+    if fecha_actual >= registro["fecha_limite"]:
+        return "VENCIDA"
+
+    tiempo_restante = registro["fecha_limite"] - fecha_actual
+
+    if tiempo_restante <= timedelta(days=3):
+        return "PROXIMO VENCIMIENTO"
+
+    return "PENDIENTE"
+
 def probar_registro_compensacion():
 
     inicio = datetime(2026, 11, 7, 18, 15)
@@ -177,6 +223,39 @@ def probar_lista_compensaciones():
             "| Límite:", registro["fecha_limite"],
             "| Estado:", registro["estado"]
         )
+
+def probar_consulta_compensaciones():
+
+    compensaciones = []
+
+    descansos = [
+        (datetime(2026, 11, 7, 18, 15), 30, 25),
+        (datetime(2026, 11, 21, 18, 0), 36, 0),
+        (datetime(2026, 12, 5, 18, 0), 40, 0)
+    ]
+
+    for inicio, horas, minutos in descansos:
+        registro = registrar_compensacion(
+            inicio, horas, minutos
+        )
+        agregar_compensacion(compensaciones, registro)
+
+    fecha_consulta = datetime(2026, 12, 15, 12, 0)
+
+    resultado = consultar_compensaciones(
+        compensaciones, fecha_consulta
+    )
+
+    print("\n--- CONSULTA DE COMPENSACIONES ---")
+    print("Pendientes:", resultado["cantidad_pendientes"])
+    print("Horas pendientes:", resultado["horas_pendientes"])
+    print("Vencidas:", resultado["cantidad_vencidas"])
+
+    proxima = resultado["proximo_vencimiento"]
+
+    if proxima is not None:
+        print("Vencimiento más antiguo:", proxima["fecha_limite"])
+
 
 def calcular_descanso_necesario(horas_pendientes):
 
@@ -353,6 +432,27 @@ def probar_descanso_semanal_reducido():
     print("Resultado:", resultado)
 
 
+def probar_estados_compensacion():
+
+    registro = registrar_compensacion(
+        datetime(2026, 11, 7, 18, 15),
+        30,
+        25
+    )
+
+    fechas = [
+        datetime(2026, 11, 20),
+        datetime(2026, 11, 28),
+        datetime(2026, 12, 1)
+    ]
+
+    print("\n--- ESTADOS DE COMPENSACIÓN ---")
+
+    for fecha in fechas:
+        estado = obtener_estado_compensacion(registro, fecha)
+        print(fecha.strftime("%d/%m/%Y"), ":", estado)
+
+
 if __name__ == "__main__":
     probar_descanso_semanal_normal()
     probar_descanso_semanal_reducido()
@@ -361,3 +461,5 @@ if __name__ == "__main__":
     probar_compensacion_invalida()
     probar_registro_compensacion()
     probar_lista_compensaciones()
+    probar_consulta_compensaciones()
+    probar_estados_compensacion()
