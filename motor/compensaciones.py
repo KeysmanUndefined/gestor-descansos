@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from motor.descanso_semanal import calcular_descanso_semanal_reducido
 
 def calcular_limite_compensacion(inicio_descanso):
 
@@ -54,3 +55,72 @@ def comprobar_compensacion(
         return "FUERA DE PLAZO: compensación tardía"
 
     return "CORRECTO: duración y plazo de compensación"
+
+def registrar_compensacion(inicio_descanso, horas, minutos=0):
+
+    fin_descanso, horas_pendientes = calcular_descanso_semanal_reducido(
+        inicio_descanso, horas, minutos
+    )
+
+    limite = calcular_limite_compensacion(inicio_descanso)
+
+    compensacion = {
+        "inicio_descanso": inicio_descanso,
+        "fin_descanso": fin_descanso,
+        "horas_pendientes": horas_pendientes,
+        "fecha_limite": limite,
+        "estado": "PENDIENTE"
+    }
+
+    return compensacion
+
+def agregar_compensacion(lista_compensaciones, registro):
+
+    lista_compensaciones.append(registro)
+
+    return lista_compensaciones
+
+def consultar_compensaciones(lista_compensaciones, fecha_actual):
+
+    pendientes = []
+    vencidas = []
+    horas_totales = timedelta(0)
+
+    for registro in lista_compensaciones:
+
+        if registro["estado"] != "PENDIENTE":
+            continue
+
+        pendientes.append(registro)
+        horas_totales += registro["horas_pendientes"]
+
+        if fecha_actual >= registro["fecha_limite"]:
+            vencidas.append(registro)
+
+    proximo_vencimiento = min(
+        pendientes,
+        key=lambda registro: registro["fecha_limite"],
+        default=None
+    )
+
+    return {
+        "cantidad_pendientes": len(pendientes),
+        "horas_pendientes": horas_totales,
+        "cantidad_vencidas": len(vencidas),
+        "proximo_vencimiento": proximo_vencimiento
+    }
+
+def obtener_estado_compensacion(registro, fecha_actual):
+
+    if registro["estado"] == "COMPLETADA":
+        return "COMPLETADA"
+
+    if fecha_actual >= registro["fecha_limite"]:
+        return "VENCIDA"
+
+    tiempo_restante = registro["fecha_limite"] - fecha_actual
+
+    if tiempo_restante <= timedelta(days=3):
+        return "PROXIMO VENCIMIENTO"
+
+    return "PENDIENTE"
