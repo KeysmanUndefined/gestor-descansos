@@ -4,6 +4,7 @@ from motor.descanso_semanal import (
     calcular_limite_semanal,
     calcular_descanso_semanal_normal,
     comprobar_descanso_semanal,
+    calcular_descanso_semanal_reducido,
 )
 def pedir_datos_semanal():
     fecha_manual = input("Introduce la fecha fin del descanso anterior (DD/MM/AAAA): ")
@@ -26,21 +27,6 @@ def pedir_datos_semanal():
     #f"Fecha y hora límite para iniciar el siguiente descanso semanal: "
    # f"{limite.strftime('%d/%m/%Y %H:%M')}"
 #)
-
-
-def calcular_descanso_semanal_reducido(inicio, horas, minutos=0):
-
-    duracion = timedelta(hours=horas, minutes=minutos)
-
-    if duracion < timedelta(hours=24) or duracion >= timedelta(hours=45):
-        raise ValueError(
-            "El descanso reducido debe ser de 24 a menos de 45 horas"
-        )
-
-    fin = inicio + duracion
-    compensacion = timedelta(hours=45) - duracion
-
-    return fin, compensacion
 
 
 def calcular_limite_compensacion(inicio_descanso):

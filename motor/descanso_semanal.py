@@ -22,3 +22,17 @@ def comprobar_descanso_semanal(fin_anterior, inicio_nuevo):
 
     else:
         return "CORRECTO: descanso iniciado dentro del plazo"
+
+def calcular_descanso_semanal_reducido(inicio, horas, minutos=0):
+
+    duracion = timedelta(hours=horas, minutes=minutos)
+
+    if duracion < timedelta(hours=24) or duracion >= timedelta(hours=45):
+        raise ValueError(
+            "El descanso reducido debe ser de 24 a menos de 45 horas"
+        )
+
+    fin = inicio + duracion
+    compensacion = timedelta(hours=45) - duracion
+
+    return fin, compensacion
