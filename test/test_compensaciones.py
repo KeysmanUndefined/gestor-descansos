@@ -163,3 +163,26 @@ def probar_estados_compensacion():
 
 
 
+from datetime import timedelta
+
+
+def test_calcular_descanso_necesario():
+    pendiente = timedelta(hours=14, minutes=35)
+
+    resultado = calcular_descanso_necesario(pendiente)
+
+    esperado = timedelta(hours=23, minutes=35)
+
+    assert resultado == esperado
+
+import pytest
+
+
+def test_descanso_necesario_rechaza_cero():
+    with pytest.raises(ValueError):
+        calcular_descanso_necesario(timedelta(hours=0))
+
+
+def test_descanso_necesario_rechaza_negativos():
+    with pytest.raises(ValueError):
+        calcular_descanso_necesario(timedelta(hours=-3))
