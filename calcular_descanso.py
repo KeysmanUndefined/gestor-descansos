@@ -6,6 +6,13 @@ from motor.descanso_semanal import (
     comprobar_descanso_semanal,
     calcular_descanso_semanal_reducido,
 )
+from motor.compensaciones import (
+    calcular_limite_compensacion,
+    calcular_descanso_necesario,
+    comprobar_duracion_compensacion,
+    comprobar_compensacion,
+)
+
 def pedir_datos_semanal():
     fecha_manual = input("Introduce la fecha fin del descanso anterior (DD/MM/AAAA): ")
     hora_manual = input("Introduce la hora fin del descanso anterior(HH:MM): ")
@@ -28,16 +35,6 @@ def pedir_datos_semanal():
    # f"{limite.strftime('%d/%m/%Y %H:%M')}"
 #)
 
-
-def calcular_limite_compensacion(inicio_descanso):
-
-    inicio_semana = inicio_descanso.replace(
-        hour=0, minute=0, second=0, microsecond=0
-    ) - timedelta(days=inicio_descanso.weekday())
-
-    limite = inicio_semana + timedelta(weeks=4)
-
-    return limite
 
 def registrar_compensacion(inicio_descanso, horas, minutos=0):
 
@@ -180,30 +177,8 @@ def probar_consulta_compensaciones():
         print("Vencimiento más antiguo:", proxima["fecha_limite"])
 
 
-def calcular_descanso_necesario(horas_pendientes):
 
-    if horas_pendientes <= timedelta(0):
-        raise ValueError("Las horas pendientes deben ser positivas")
 
-    descanso_minimo = timedelta(hours=9)
-
-    return horas_pendientes + descanso_minimo
-
-def comprobar_duracion_compensacion(
-    horas_pendientes,
-    inicio_descanso,
-    fin_descanso
-):
-    if fin_descanso <= inicio_descanso:
-        return "ERROR: fechas incoherentes"
-
-    duracion = fin_descanso - inicio_descanso
-    necesario = calcular_descanso_necesario(horas_pendientes)
-
-    if duracion < necesario:
-        return "INSUFICIENTE: faltan horas de descanso"
-
-    return "CORRECTO: duración suficiente"
 
 def probar_duracion_compensacion():
 
@@ -238,25 +213,7 @@ def probar_calcular_descanso_necesario():
         except ValueError as error:
             print(f"Pendiente: {horas} → ERROR: {error}")
 
-def comprobar_compensacion(
-    horas_pendientes,
-    inicio_compensacion,
-    fin_compensacion,
-    limite
-):
-    resultado = comprobar_duracion_compensacion(
-        horas_pendientes,
-        inicio_compensacion,
-        fin_compensacion
-    )
 
-    if resultado != "CORRECTO: duración suficiente":
-        return resultado
-
-    if fin_compensacion > limite:
-        return "FUERA DE PLAZO: compensación tardía"
-
-    return "CORRECTO: duración y plazo de compensación"
 
 def probar_compensacion_invalida():
 
