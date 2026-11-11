@@ -77,16 +77,6 @@ def calcular_descanso_semanal_normal(inicio_descanso):
 
     return fin_descanso
 
-def comprobar_descanso_semanal(inicio_descanso, limite):
-
-    if inicio_descanso <= limite:
-        print("Descanso semanal iniciado dentro del plazo")
-
-    else:
-        print("ATENCIÓN: has superado el límite de 144 horas")
-
-
-
 def comprobar_descanso_semanal(fin_anterior, inicio_nuevo):
 
     limite = calcular_limite_semanal(fin_anterior)
@@ -126,6 +116,32 @@ def calcular_limite_compensacion(inicio_descanso):
 
     return limite
 
+def calcular_descanso_necesario(horas_pendientes):
+
+    if horas_pendientes <= timedelta(0):
+        raise ValueError("Las horas pendientes deben ser positivas")
+
+    descanso_minimo = timedelta(hours=9)
+
+    return horas_pendientes + descanso_minimo
+
+def probar_calcular_descanso_necesario():
+
+    casos = [
+        timedelta(hours=14, minutes=35),
+        timedelta(hours=5),
+        timedelta(hours=0),
+        timedelta(hours=-3)
+    ]
+
+    for horas in casos:
+        try:
+            resultado = calcular_descanso_necesario(horas)
+            print(f"Pendiente: {horas} → Necesario: {resultado}")
+
+        except ValueError as error:
+            print(f"Pendiente: {horas} → ERROR: {error}")
+
 def comprobar_compensacion(
     horas_pendientes,
     inicio_compensacion,
@@ -140,18 +156,10 @@ def comprobar_compensacion(
     if fin_compensacion > limite:
         return "FUERA DE PLAZO: compensación tardía"
 
-    if duracion < horas_pendientes + timedelta(hours=9):
+    if duracion < calcular_descanso_necesario(horas_pendientes):
         return "INSUFICIENTE: faltan horas de descanso"
 
     return "CORRECTO: compensación completada"
-
-
-
-
-
-
-
-
 
 def probar_descanso_semanal_normal():
 
@@ -206,8 +214,8 @@ def probar_descanso_semanal_reducido():
 
     # PRUEBA DE COMPENSACIÓN
 
-    inicio_compensacion = datetime(2026, 11, 30, 8, 0)
-    fin_compensacion = datetime(2026, 12, 1, 8, 0)
+    inicio_compensacion = datetime(2026, 11, 28, 8, 0)
+    fin_compensacion = datetime(2026, 11, 29, 8, 0)
 
     resultado = comprobar_compensacion(
         compensacion,
@@ -226,3 +234,4 @@ def probar_descanso_semanal_reducido():
 if __name__ == "__main__":
     probar_descanso_semanal_normal()
     probar_descanso_semanal_reducido()
+    probar_calcular_descanso_necesario()
