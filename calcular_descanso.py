@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
 from motor.descanso_diario import calcular_descanso_diario
-
-
+from motor.descanso_semanal import (
+    calcular_limite_semanal,
+    calcular_descanso_semanal_normal,
+    comprobar_descanso_semanal,
+)
 def pedir_datos_semanal():
     fecha_manual = input("Introduce la fecha fin del descanso anterior (DD/MM/AAAA): ")
     hora_manual = input("Introduce la hora fin del descanso anterior(HH:MM): ")
@@ -15,10 +18,6 @@ def pedir_datos_semanal():
     )
 
     return hora_inicio
-
-def calcular_limite_semanal(fin_descanso_anterior):
-     limite = fin_descanso_anterior + timedelta(hours=144)
-     return limite
      
 #calcular_descanso_diario()
 #fin_anterior = pedir_datos_semanal()
@@ -29,26 +28,6 @@ def calcular_limite_semanal(fin_descanso_anterior):
 #)
 
 
-def calcular_descanso_semanal_normal(inicio_descanso):
-    duracion = timedelta(hours=45)
-    fin_descanso = inicio_descanso + duracion
-
-    return fin_descanso
-
-def comprobar_descanso_semanal(fin_anterior, inicio_nuevo):
-
-    limite = calcular_limite_semanal(fin_anterior)
-
-    if inicio_nuevo < fin_anterior:
-        return "ERROR: las fechas no son coherentes"
-
-    elif inicio_nuevo > limite:
-        return "FUERA DE PLAZO: superadas las 144 horas"
-
-    else:
-        return "CORRECTO: descanso iniciado dentro del plazo"
-
-    
 def calcular_descanso_semanal_reducido(inicio, horas, minutos=0):
 
     duracion = timedelta(hours=horas, minutes=minutos)
