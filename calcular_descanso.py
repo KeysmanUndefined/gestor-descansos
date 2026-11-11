@@ -116,6 +116,68 @@ def calcular_limite_compensacion(inicio_descanso):
 
     return limite
 
+def registrar_compensacion(inicio_descanso, horas, minutos=0):
+
+    fin_descanso, horas_pendientes = calcular_descanso_semanal_reducido(
+        inicio_descanso, horas, minutos
+    )
+
+    limite = calcular_limite_compensacion(inicio_descanso)
+
+    compensacion = {
+        "inicio_descanso": inicio_descanso,
+        "fin_descanso": fin_descanso,
+        "horas_pendientes": horas_pendientes,
+        "fecha_limite": limite,
+        "estado": "PENDIENTE"
+    }
+
+    return compensacion
+
+def agregar_compensacion(lista_compensaciones, registro):
+
+    lista_compensaciones.append(registro)
+
+    return lista_compensaciones
+
+def probar_registro_compensacion():
+
+    inicio = datetime(2026, 11, 7, 18, 15)
+
+    registro = registrar_compensacion(inicio, 30, 25)
+
+    print("\n--- REGISTRO COMPENSACIÓN ---")
+
+    for clave, valor in registro.items():
+        print(f"{clave}: {valor}")
+
+def probar_lista_compensaciones():
+
+    compensaciones = []
+
+    descansos = [
+        (datetime(2026, 11, 7, 18, 15), 30, 25),
+        (datetime(2026, 11, 21, 18, 0), 36, 0),
+        (datetime(2026, 12, 5, 18, 0), 40, 0)
+    ]
+
+    for inicio, horas, minutos in descansos:
+
+        registro = registrar_compensacion(
+            inicio, horas, minutos
+        )
+
+        agregar_compensacion(compensaciones, registro)
+
+    print("\n--- LISTA DE COMPENSACIONES ---")
+
+    for registro in compensaciones:
+        print(
+            "Pendiente:", registro["horas_pendientes"],
+            "| Límite:", registro["fecha_limite"],
+            "| Estado:", registro["estado"]
+        )
+
 def calcular_descanso_necesario(horas_pendientes):
 
     if horas_pendientes <= timedelta(0):
@@ -297,3 +359,5 @@ if __name__ == "__main__":
     probar_calcular_descanso_necesario()
     probar_duracion_compensacion()
     probar_compensacion_invalida()
+    probar_registro_compensacion()
+    probar_lista_compensaciones()
